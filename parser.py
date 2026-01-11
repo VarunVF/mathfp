@@ -60,6 +60,8 @@ class Parser:
                 return self.binding()
             elif self.lookahead().token_type == Token.MAPS_TO:
                 return self.function_def()
+        if self.current_token().token_type == Token.IF:
+            return self.if_expr()
         return self.binary_expr()
 
     def function_def(self):
@@ -85,9 +87,15 @@ class Parser:
         value = self.expression()
         return Binding(var_name, value)
     
-    # Not implemented
-    # def if_expr(self):
-
+    def if_expr(self):
+        self.consume(Token.IF)
+        cond_expr = self.expression()
+        self.consume(Token.THEN)
+        then_expr = self.expression()
+        self.consume(Token.ELSE)
+        else_expr = self.expression()
+        return IfExpr(cond_expr, then_expr, else_expr)
+    
     def identifier(self):
         var = Var(self.current_token().lexeme)
         self.advance()
@@ -112,7 +120,7 @@ class Parser:
     def term(self):
         lhs = self.factor()
 
-        while (not self.is_at_end()) and self.current_token().token_type in (Token.STAR, Token.SLASH):
+        while (not self.is_at_end()) and self.current_token().token_type in (Token.STAR, Token.SLASH, Token.GREATER_THAN):
             op = self.current_token().lexeme
             self.advance()
             rhs = self.factor()
@@ -165,9 +173,7 @@ class Parser:
 
 def main():
     source = (
-        'f := x |-> 2*x\n'
-        'g := f |-> f(1)\n'
-        'result := g(f)'
+        'sign := x |-> 1 if x > 0 else -1\n'
     )
 
     tokeniser = Tokeniser(source)

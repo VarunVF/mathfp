@@ -15,8 +15,13 @@ class Token:
     MINUS = 7
     STAR = 8
     SLASH = 9
+    GREATER_THAN = 10
 
-    NUMBER = 10
+    NUMBER = 11
+
+    IF = 12
+    THEN = 13
+    ELSE = 14
 
     def __init__(self, lexeme: str, token_type: int) -> None:
         self.token_type = token_type
@@ -85,6 +90,15 @@ class Tokeniser:
             identifier += self.current_char()
             self.advance_char()
         return identifier
+    
+    def current_starts_with(self, needle: str):
+        haystack: str = self.source[self.index:]
+        if len(haystack) < len(needle):
+            return False
+        for i, ch in enumerate(needle):
+            if haystack[i] != ch:
+                return False
+        return True
 
     def tokenise(self):
         while self.is_within_bounds():
@@ -123,6 +137,19 @@ class Tokeniser:
             elif self.current_char() == '/':
                 self.tokens.append(Token('/', Token.SLASH))
                 self.advance_char()
+            elif self.current_char() == '>':
+                self.tokens.append(Token('>', Token.GREATER_THAN))
+                self.advance_char()
+
+            elif self.current_starts_with('if'):
+                self.tokens.append(Token('if', Token.IF))
+                self.advance_chars(2)
+            elif self.current_starts_with('then'):
+                self.tokens.append(Token('then', Token.THEN))
+                self.advance_chars(4)
+            elif self.current_starts_with('else'):
+                self.tokens.append(Token('else', Token.ELSE))
+                self.advance_chars(4)
 
             elif self.current_char().isalpha():
                 identifier = self.scan_identifier()
