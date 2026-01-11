@@ -1,6 +1,8 @@
 import sys
 import os
 
+from util import try_read_file
+from preprocessor import Preprocessor
 from tokeniser import Tokeniser
 from parser import Parser
 from eval import eval_expr, Env
@@ -13,6 +15,7 @@ def run_repl():
         line = input(">>> ")
         if line.strip() == "exit":
             break
+        line = Preprocessor().preprocess(line, os.getcwd())
         lexer = Tokeniser(line)
         lexer.tokenise()
         parser = Parser(lexer.tokens)
@@ -30,13 +33,9 @@ def print_usage():
 
 
 def run_file(filepath: str):
-    if os.path.exists(filepath):
-        with open(filepath) as f:
-            source = f.read()
-    else:
-        print(f"No such file: {filepath}", file=sys.stderr)
-        exit(1)
-
+    filepath = os.path.abspath(filepath)
+    source = try_read_file(filepath)
+    source = Preprocessor().preprocess(source, filepath)
     lexer = Tokeniser(source)
     lexer.tokenise()
     parser = Parser(lexer.tokens)
