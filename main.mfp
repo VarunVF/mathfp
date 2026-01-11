@@ -1,0 +1,29 @@
+# Function definition
+a := x |-> 3*x
+
+# Functions are first-class values
+b := f |-> f(5) / 2
+b(a)
+
+# All values are immutable, the following is illegal
+# a := x |-> 2*x
+
+# Builtins
+pi := 3.14159265
+e  := 2.71828183
+sin(pi)
+cos(pi)
+ln(e)
+
+# Recursion?
+# n := x |-> x(x)
+# n(n) # Careful!
+
+# Currying
+c := x |-> y |-> x+y
+c_inner := c(1)
+c_result := c_inner(2)
+
+# Inline lambdas, multiple call expressions (not yet implemented)
+# val      := (x |-> 2*x)(3)
+# c_result := c(1)(2)

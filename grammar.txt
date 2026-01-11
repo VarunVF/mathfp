@@ -1,0 +1,49 @@
+program:
+    expression*
+
+expression:
+    | function_def
+    | function_call
+    | binding
+    | if_expr
+    | IDENTIFIER
+    | NUMBER
+    | binary_expr
+    | "(" expression ")"
+
+function_def:
+    IDENTIFIER "|->" expression
+
+function_call:
+    IDENTIFIER "(" expression ")"
+
+binding:
+    IDENTIFIER ":=" expression
+
+if_expr:
+    "if" expression "then" expression "else" expression
+
+binary_expr:
+    term (("+" | "-") term)*
+
+term:
+    factor (("*" | "/" | ">") factor)*
+
+factor:
+    | NUMBER
+    | IDENTIFIER
+    | function_def
+    | function_call
+    | if_expr
+    | "(" expression ")"
+
+
+IDENTIFIER:
+    [a-zA-Z_][a-zA-Z0-9_]*
+
+
+BINARY_OP:
+    "+" | "-" | "*" | "/" | ">"
+
+NUMBER:
+    Float or integer literal.
