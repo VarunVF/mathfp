@@ -15,16 +15,22 @@ def run_repl():
         line = input(">>> ")
         if line.strip() == "exit":
             break
-        line = Preprocessor().preprocess(line, os.getcwd())
+
+        preprocessor = Preprocessor()
+        line = preprocessor.preprocess(line, os.path.join(os.getcwd(), '<repl>'))
+        if preprocessor.had_error:
+            continue
         lexer = Tokeniser(line)
         lexer.tokenise()
         parser = Parser(lexer.tokens)
         parser.parse()
-        if not lexer.had_error:
-            for expr in parser.ast.exprs:
-                env, result = eval_expr(expr, env)
-                if result is not None:
-                    print(result)
+        if lexer.had_error:
+            continue
+        
+        for expr in parser.ast.exprs:
+            env, result = eval_expr(expr, env)
+            if result is not None:
+                print(result)
 
 
 def print_usage():
