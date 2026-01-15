@@ -5,12 +5,13 @@ from util import try_read_file
 from preprocessor import Preprocessor
 from tokeniser import Tokeniser
 from parser import Parser
-from eval import eval_expr, Env
+from eval import Env, Evaluator
 
 
 def run_repl():
     print("MathFP REPL. Type 'exit' to quit.")
     env = Env()
+    visitor = Evaluator()
     while True:
         line = input(">>> ")
         if line.strip() == "exit":
@@ -28,28 +29,29 @@ def run_repl():
             continue
         
         for expr in parser.ast.exprs:
-            env, result = eval_expr(expr, env)
-            if result is not None:
-                print(result)
-
-
-def print_usage():
-    print("Usage: mfp.py MFP_SOURCE")
-    print("    MFP_SOURCE: path to source file")
+            env, result = expr.accept(env, visitor)
+        
+        if result is not None:
+            print(result)
 
 
 def run_file(filepath: str):
-    filepath = os.path.abspath(filepath)
-    source = try_read_file(filepath)
+    source = try_read_file(os.path.abspath(filepath))
     source = Preprocessor().preprocess(source, filepath)
     lexer = Tokeniser(source)
     lexer.tokenise()
     parser = Parser(lexer.tokens)
     parser.parse()
     env = Env()
+    visitor = Evaluator()
     if not lexer.had_error:
         for expr in parser.ast.exprs:
-            env, result = eval_expr(expr, env)
+            env, result = expr.accept(env, visitor)
+
+
+def print_usage():
+    print("Usage: mfp.py MFP_SOURCE")
+    print("    MFP_SOURCE: path to source file")
 
 
 def main():

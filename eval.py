@@ -2,14 +2,7 @@ import math
 import sys
 
 from ast_nodes import *
-
-
-# Environment: immutable dictionary mapping names -> values
-class Env(dict):
-    def extend(self, name, value):
-        new_env = Env(self)
-        new_env[name] = value
-        return new_env
+from env import Env
 
 
 # Built-in functions
@@ -37,88 +30,78 @@ BUILTINS = {
     "cos": math.cos,
 }
 
-# Evaluator
-def eval_expr(expr, env):
-    if isinstance(expr, Number):
-        return env, expr.value
 
-    elif isinstance(expr, Var):
-        if expr.name in env:
-            return env, env[expr.name]
-        elif expr.name in BUILTINS:
-            return env, BUILTINS[expr.name]
+class Evaluator(ASTVisitor):
+    def visit_number(self, env: Env, node: Number):
+        return env, node.value
+    
+    def visit_var(self, env, node):
+        if node.name in env:
+            return env, env[node.name]
+        elif node.name in BUILTINS:
+            return env, BUILTINS[node.name]
         else:
-            print(f"[mfp] Unknown variable: {expr.name}", file=sys.stderr)
+            print(f"[mfp] Unknown variable: {node.name}", file=sys.stderr)
             return env, None
 
-    elif isinstance(expr, Binding):
-        _, value = eval_expr(expr.expr, env)
-        if expr.name in env:
-            print(f"[mfp] Redeclaration of variable: {expr.name}", file=sys.stderr)
+    def visit_binding(self, env: Env, node: Binding):
+        _, value = node.expr.accept(env, self)
+        if node.name in env:
+            print(f"[mfp] Redeclaration of variable: {node.name}", file=sys.stderr)
             return env, None
-        return env.extend(expr.name, value), None
-
-    elif isinstance(expr, FunctionDef_):
-        param = expr.param
-        body = expr.body
+        return env.extend(node.name, value), None
+    
+    def visit_functiondef(self, env: Env, node: FunctionDef_):
+        param = node.param
+        body = node.body
         def func(param_value):
             local_env = env.extend(param, param_value)
-            return eval_expr(body, local_env)[1]
+            return body.accept(local_env, self)[1]
         return env, func
-
-    elif isinstance(expr, FunctionCall):
-        _, func = eval_expr(expr.func, env)
-        _, arg = eval_expr(expr.arg, env)
+    
+    def visit_functioncall(self, env: Env, node: FunctionCall):
+        _, func = node.func.accept(env, self)
+        _, arg = node.arg.accept(env, self)
         return env, func(arg)
-
-    elif isinstance(expr, BinaryOp):
-        _, left = eval_expr(expr.left, env)
-        _, right = eval_expr(expr.right, env)
-        op_func = BUILTINS[expr.op]
+    
+    def visit_binaryop(self, env: Env, node: BinaryOp):
+        _, left = node.left.accept(env, self)
+        _, right = node.right.accept(env, self)
+        op_func = BUILTINS[node.op]
         return env, op_func(left, right)
-
-    elif isinstance(expr, IfExpr):
-        _, cond = eval_expr(expr.cond, env)
-        _, t_val = eval_expr(expr.then_expr, env)
-        _, f_val = eval_expr(expr.else_expr, env)
+    
+    def visit_ifexpr(self, env: Env, node: IfExpr):
+        _, cond = node.cond.accept(env, self)
+        _, t_val = node.then_expr.accept(env, self)
+        _, f_val = node.else_expr.accept(env, self)
         return env, builtin_if(cond, t_val, f_val)
-
-    else:
-        raise Exception(f"Unknown expression type: {type(expr)}")
 
 
 def main():
-    # Build AST
-    env = Env()
-
+    ## Build AST
     # a := f -> f(0) / 2
     # b := x -> 3*x
     # a(b)
 
-    env = eval_expr(
+    exprs: list[ASTNode] = [
         Binding('a',
             FunctionDef_('f',
                 BinaryOp( FunctionCall(Var('f'), Number(0)), '/', Number(2) )
             )
         ),
-        env
-    )
-
-    env = eval_expr(
         Binding('b',
             FunctionDef_('x',
                 BinaryOp( Number(3), '*', Var('x') )
             )
         ),
-        env
-    )
+        FunctionCall( Var('a'), Var('b') ),
+    ]
+    visitor = Evaluator()
+    env = Env()
+    for expr in exprs:
+        env, res = expr.accept(env, visitor)
 
-    result = eval_expr(
-        FunctionCall( Var('a'), Var('b')),
-        env
-    )
-
-    print("Result:", result)  # Should print 0
+    print(res)  # Should print 0
 
 
 if __name__ == "__main__":

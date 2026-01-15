@@ -4,7 +4,7 @@ from tokeniser import Token, Tokeniser
 
 class Program:
     def __init__(self):
-        self.exprs = []
+        self.exprs: list[ASTNode] = []
 
     def add_expression(self, expr):
         self.exprs.append(expr)
