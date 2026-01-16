@@ -2,14 +2,6 @@ from ast_nodes import *
 from tokeniser import Token, Tokeniser
 
 
-class Program:
-    def __init__(self):
-        self.exprs: list[ASTNode] = []
-
-    def add_expression(self, expr):
-        self.exprs.append(expr)
-
-
 class Parser:
     def __init__(self, tokens: list[Token]):
         self.index = 0

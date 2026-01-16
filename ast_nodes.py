@@ -3,6 +3,9 @@ from env import Env
 
 # Visitor interface
 class ASTVisitor:
+    def visit_program(self, env: Env, node: Program):
+        pass
+    
     def visit_number(self, env: Env, node: Number):
         pass
 
@@ -32,6 +35,17 @@ class ASTNode:
 
 
 # AST nodes (call the specific visitor method)
+
+class Program(ASTNode):
+    def __init__(self):
+        self.exprs: list[ASTNode] = []
+
+    def add_expression(self, expr):
+        self.exprs.append(expr)
+    
+    def accept(self, env: Env, visitor: ASTVisitor):
+        return visitor.visit_program(env, self)
+
 
 class Number(ASTNode):
     def __init__(self, value: int | float):

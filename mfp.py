@@ -11,7 +11,7 @@ from eval import Env, Evaluator
 def run_repl():
     print("MathFP REPL. Type 'exit' to quit.")
     env = Env()
-    visitor = Evaluator()
+    evaluator = Evaluator()
     while True:
         line = input(">>> ")
         if line.strip() == "exit":
@@ -28,9 +28,7 @@ def run_repl():
         if lexer.had_error:
             continue
         
-        for expr in parser.ast.exprs:
-            env, result = expr.accept(env, visitor)
-        
+        env, result = parser.ast.accept(env, evaluator)
         if result is not None:
             print(result)
 
@@ -43,10 +41,9 @@ def run_file(filepath: str):
     parser = Parser(lexer.tokens)
     parser.parse()
     env = Env()
-    visitor = Evaluator()
+    evaluator = Evaluator()
     if not lexer.had_error:
-        for expr in parser.ast.exprs:
-            env, result = expr.accept(env, visitor)
+        env, result = parser.ast.accept(env, evaluator)
 
 
 def print_usage():

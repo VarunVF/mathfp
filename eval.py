@@ -32,6 +32,11 @@ BUILTINS = {
 
 
 class Evaluator(ASTVisitor):
+    def visit_program(self, env: Env, node: Program):
+        for node in node.exprs:
+            env, result = node.accept(env, self)
+        return env, result
+    
     def visit_number(self, env: Env, node: Number):
         return env, node.value
     
