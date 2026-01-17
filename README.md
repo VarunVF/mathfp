@@ -42,3 +42,10 @@ print( check_f(2) )
 ```
 
 See more in the `examples/` directory.
+
+## Editor Support
+
+A simple syntax highlighting extension for VS Code is available (located in `vscode-extension`).
+Most editor themes should work alongside with this extension.
+
+<img src="images/editor-example.png" />
