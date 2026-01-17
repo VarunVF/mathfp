@@ -4,8 +4,9 @@ A small functional, math-oriented language with immutable values and first-class
 
 ## Features
 
-- Immutable values
 - First-class and higher-order functions: Functions can accept and return functions
+- Immutable values
+- Recursion
 - Lambdas
 - Conditional expressions
 - File inclusion using `!include` macro

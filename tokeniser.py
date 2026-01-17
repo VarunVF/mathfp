@@ -124,13 +124,8 @@ class Tokeniser:
                 self.tokens.append(Token('+', Token.PLUS))
                 self.advance_char()
             elif self.current_char() == '-':
-                if self.next_char().isdigit():
-                    self.advance_char()
-                    number = '-' + self.scan_number()
-                    self.tokens.append(Token(number, Token.NUMBER))
-                else:
-                    self.tokens.append(Token('-', Token.MINUS))
-                    self.advance_char()
+                self.tokens.append(Token('-', Token.MINUS))
+                self.advance_char()
             elif self.current_char() == '*':
                 self.tokens.append(Token('*', Token.STAR))
                 self.advance_char()
@@ -174,11 +169,7 @@ class Tokeniser:
 
 
 def main():
-    source = (
-        'f := x |-> 2*x\n'
-        'g := f |-> f(1) + 1\n'
-        'g(f)'
-    )
+    source = 'fact := n |-> if x > 0 then fact(n-1) else 1\n'
 
     tk = Tokeniser(source)
     tk.tokenise()

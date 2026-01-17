@@ -33,6 +33,7 @@ BUILTINS = {
 
 class Evaluator(ASTVisitor):
     def visit_program(self, env: Env, node: Program):
+        result = None
         for node in node.exprs:
             env, result = node.accept(env, self)
         return env, result
@@ -54,14 +55,21 @@ class Evaluator(ASTVisitor):
         if node.name in env:
             print(f"[mfp] Redeclaration of variable: {node.name}", file=sys.stderr)
             return env, None
+        if isinstance(node.expr, FunctionDef_):  # To enable self-reference (recursion)
+            inner: FunctionDef_ = node.expr
+            inner.local_env = inner.local_env.extend(node.name, value)
         return env.extend(node.name, value), None
     
     def visit_functiondef(self, env: Env, node: FunctionDef_):
         param = node.param
         body = node.body
         def func(param_value):
-            local_env = env.extend(param, param_value)
-            return body.accept(local_env, self)[1]
+            # Inherit outer scope
+            for key, val in env.items():
+                if key not in node.local_env:
+                    node.local_env[key] = val
+            node.local_env = node.local_env.extend(param, param_value)  # Add param variable
+            return body.accept(node.local_env, self)[1]
         return env, func
     
     def visit_functioncall(self, env: Env, node: FunctionCall):
@@ -75,11 +83,15 @@ class Evaluator(ASTVisitor):
         op_func = BUILTINS[node.op]
         return env, op_func(left, right)
     
+    def visit_unaryop(self, env, node):
+        _, right = node.right.accept(env, self)
+        return env, -right
+    
     def visit_ifexpr(self, env: Env, node: IfExpr):
         _, cond = node.cond.accept(env, self)
-        _, t_val = node.then_expr.accept(env, self)
-        _, f_val = node.else_expr.accept(env, self)
-        return env, builtin_if(cond, t_val, f_val)
+        lazy_branch = builtin_if(cond, node.then_expr, node.else_expr)
+        _, value = lazy_branch.accept(env, self)
+        return env, value
 
 
 def main():

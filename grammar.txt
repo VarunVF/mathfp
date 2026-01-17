@@ -2,23 +2,16 @@ program:
     expression*
 
 expression:
-    | function_def
-    | function_call
     | binding
+    | function_def
     | if_expr
-    | IDENTIFIER
-    | NUMBER
     | binary_expr
-    | "(" expression ")"
-
-function_def:
-    IDENTIFIER "|->" expression
-
-function_call:
-    IDENTIFIER "(" expression ")"
 
 binding:
     IDENTIFIER ":=" expression
+
+function_def:
+    IDENTIFIER "|->" expression
 
 if_expr:
     "if" expression "then" expression "else" expression
@@ -26,24 +19,26 @@ if_expr:
 binary_expr:
     term (("+" | "-") term)*
 
+function_call:
+    IDENTIFIER "(" expression ")"
+
 term:
     factor (("*" | "/" | ">") factor)*
 
 factor:
+    ("-" ?) unary_argument
+
+unary_argument:
     | NUMBER
     | IDENTIFIER
-    | function_def
     | function_call
-    | if_expr
     | "(" expression ")"
-
 
 IDENTIFIER:
     [a-zA-Z_][a-zA-Z0-9_]*
 
-
-BINARY_OP:
-    "+" | "-" | "*" | "/" | ">"
-
 NUMBER:
-    Float or integer literal.
+    ("-" ?) DIGITS "." (DIGITS ?)
+
+DIGITS:
+    [0-9]+

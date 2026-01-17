@@ -2,8 +2,8 @@
 a := x |-> 3*x
 
 # Functions are first-class values
-b := f |-> f(5) / 2
-b(a)
+g := f |-> f(5) / 2
+g(x |-> x*10)  # 5*10 / 2 = 25
 
 # All values are immutable, the following is illegal
 # a := x |-> 2*x
@@ -15,15 +15,15 @@ sin(pi)
 cos(pi)
 ln(e)
 
-# Recursion?
-# n := x |-> x(x)
-# n(n) # Careful!
+# Recursion
+fact := n |-> if n > 0 then n*fact(n-1) else 1
+print( fact(5) )
 
 # Currying
-c := x |-> y |-> x+y
-c_inner := c(1)
-c_result := c_inner(2)
+add := x |-> y |-> x + y
+res := add(9)
+res(10)  # 19
 
-# Inline lambdas, multiple call expressions (not yet implemented)
+# Immediately invoking lambdas, chained call expressions (not yet implemented)
 # val      := (x |-> 2*x)(3)
 # c_result := c(1)(2)

@@ -24,6 +24,9 @@ class ASTVisitor:
     def visit_binaryop(self, env: Env, node: BinaryOp):
         pass
 
+    def visit_unaryop(self, env: Env, node: UnaryOp):
+        pass
+
     def visit_ifexpr(self, env: Env, node: IfExpr):
         pass
 
@@ -76,6 +79,7 @@ class FunctionDef_(ASTNode):
     def __init__(self, param: str, body: ASTNode):
         self.param = param
         self.body = body
+        self.local_env = Env()
 
     def accept(self, env: Env, visitor: ASTVisitor):
         return visitor.visit_functiondef(env, self)
@@ -98,6 +102,15 @@ class BinaryOp(ASTNode):
 
     def accept(self, env: Env, visitor: ASTVisitor):
         return visitor.visit_binaryop(env, self)
+
+
+class UnaryOp(ASTNode):
+    def __init__(self, op: str, right: ASTNode):
+        self.op = op
+        self.right = right
+        
+    def accept(self, env: Env, visitor: ASTVisitor):
+        return visitor.visit_unaryop(env, self)
 
 
 class IfExpr(ASTNode):

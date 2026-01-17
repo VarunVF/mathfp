@@ -121,8 +121,16 @@ class Parser:
         return lhs
 
     def factor(self):
-        token = self.current_token()
+        if self.current_token().token_type == Token.MINUS:
+            op = self.current_token().lexeme
+            self.advance()
+            rhs = self.unary_argument()
+            return UnaryOp(op, rhs)
+        return self.unary_argument()
 
+    def unary_argument(self):
+        token = self.current_token()
+        
         if token.token_type == Token.NUMBER:
             self.consume(Token.NUMBER)
             if token.lexeme.find(".") != -1:
@@ -165,7 +173,11 @@ class Parser:
 
 def main():
     source = (
-        'sign := x |-> 1 if x > 0 else -1\n'
+        'fact := n |-> if x > 0 then fact(n-1) else 1\n'
+        'a := -1\n'
+        'b := 3\n'
+        'c := -2.7\n'
+        'd := 4.2\n'
     )
 
     tokeniser = Tokeniser(source)
