@@ -169,7 +169,7 @@ class Tokeniser:
 
 
 def main():
-    source = 'fact := n |-> if x > 0 then fact(n-1) else 1\n'
+    source = 'fact := n |-> if n > 0 then n*fact(n-1) else 1\n'
 
     tk = Tokeniser(source)
     tk.tokenise()

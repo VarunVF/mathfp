@@ -70,7 +70,15 @@ class Parser:
         self.consume(Token.LEFT_PAREN)
         argument = self.expression()
         self.consume(Token.RIGHT_PAREN)
-        return FunctionCall(func, argument)
+        call_expr = FunctionCall(func, argument)
+
+        while not self.is_at_end() and self.current_token().token_type == Token.LEFT_PAREN:
+            self.consume(Token.LEFT_PAREN)
+            next_argument = self.expression()
+            self.consume(Token.RIGHT_PAREN)
+            call_expr = FunctionCall(call_expr, next_argument)
+
+        return call_expr
     
     def binding(self):
         var_name = self.current_token().lexeme
@@ -150,7 +158,23 @@ class Parser:
             self.consume(Token.LEFT_PAREN)
             expr = self.expression()
             self.consume(Token.RIGHT_PAREN)
-            return expr
+            if isinstance(expr, FunctionDef_):
+                if self.current_token().token_type == Token.LEFT_PAREN:
+                    func_expr: FunctionDef_ = expr
+                    self.consume(Token.LEFT_PAREN)
+                    argument = self.expression()
+                    self.consume(Token.RIGHT_PAREN)
+                    call_expr = FunctionCall(func_expr, argument)
+
+                    while not self.is_at_end() and self.current_token().token_type == Token.LEFT_PAREN:
+                        self.consume(Token.LEFT_PAREN)
+                        next_argument = self.expression()
+                        self.consume(Token.RIGHT_PAREN)
+                        call_expr = FunctionCall(call_expr, next_argument)
+                    
+                    return call_expr
+            else:
+                return expr
 
         if token.token_type == Token.END_LINE:
             self.advance()
@@ -173,11 +197,9 @@ class Parser:
 
 def main():
     source = (
-        'fact := n |-> if x > 0 then fact(n-1) else 1\n'
-        'a := -1\n'
-        'b := 3\n'
-        'c := -2.7\n'
-        'd := 4.2\n'
+        'f := x |-> x*2\n'
+        'g := x |-> x\n'
+        'g(f)(1)\n'
     )
 
     tokeniser = Tokeniser(source)

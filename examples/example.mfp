@@ -21,9 +21,8 @@ print( fact(5) )
 
 # Currying
 add := x |-> y |-> x + y
-res := add(9)
-res(10)  # 19
+add(9)(10)  # 19
 
-# Immediately invoking lambdas, chained call expressions (not yet implemented)
-# val      := (x |-> 2*x)(3)
-# c_result := c(1)(2)
+# Immediately invoking lambdas
+val := (x |-> 2*x)(3)
+print(val)

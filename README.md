@@ -24,7 +24,7 @@ print( f(0) )  # -1
 Conditionals:
 ```mfp
 # Absolute value function
-abs := x |-> if x > 0 then x else 0 - x
+abs := x |-> if x > 0 then x else -x
 print( abs(6) )   # 6
 print( abs(-5) )  # 5
 ```
@@ -32,20 +32,21 @@ print( abs(-5) )  # 5
 Higher-order functions:
 ```mfp
 # Checks if a function is positive at x
-is_positive := f |-> x |-> if f(x) then 1 else 0
+is_positive := f |-> x |-> if f(x) > 0 then 1 else 0
 
+f := x |-> 2*x*x + 3*x - 1
 check_f := is_positive(f)
 
-print( check_f(0) )
-print( check_f(-1) )
-print( check_f(2) )
+print( check_f(0) )   # 0
+print( check_f(-1) )  # 0
+print( check_f(17) )  # 1
 ```
 
 See more in the `examples/` directory.
 
 ## Editor Support
 
-A simple syntax highlighting extension for VS Code is available (located in `vscode-extension`).
+A simple syntax highlighting extension for VS Code is available (located in `vscode-extension/`).
 Most editor themes should work alongside with this extension.
 
 <img src="images/editor-example.png" />

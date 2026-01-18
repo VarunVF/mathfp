@@ -86,7 +86,7 @@ class FunctionDef_(ASTNode):
 
 
 class FunctionCall(ASTNode):
-    def __init__(self, func: Var, arg: ASTNode):
+    def __init__(self, func: ASTNode, arg: ASTNode):
         self.func = func
         self.arg = arg
 
